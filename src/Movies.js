@@ -1,13 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { MoviesContext } from './MoviesProvider';
 
 export default class Movies extends React.Component {
-    state = { movies: [] };
+    static contextType = MoviesContext;
 
     componentDidMount() {
+        if (this.context.movies.length) {
+            return;
+        }
+
         fetch(`http://omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_KEY}&s=star wars`)
             .then(res => res.json())
-            .then(data => this.setState({ movies: data.Search }));
+            .then(data => this.context.setMovies(data.Search));
     }
 
     render() {
@@ -15,7 +20,7 @@ export default class Movies extends React.Component {
             <div>
                 <h1>Movies</h1>
                 <ul>
-                    {this.state.movies.map(movie => (
+                    {this.context.movies.map(movie => (
                         <li key={movie.imdbID}>
                             <Link to={`/movies/${movie.imdbID}`}>
                                 {movie.Title}
